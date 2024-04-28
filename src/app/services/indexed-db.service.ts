@@ -94,6 +94,38 @@ export class IndexedDbService {
     );
   }
 
+  getLastDataFromStore(objectStoreIndex: number): Observable<any> {
+
+    return new Observable<any>((observer) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+
+      request.onerror = (event) => {
+        observer.error('Errore nell\'apertura del database');
+      };
+
+      request.onsuccess = (event) => {
+        const ithStoreName = this.baseStoreName + objectStoreIndex;
+
+        const db = request.result;
+        const transaction = db.transaction(ithStoreName, 'readonly');
+        const objectStore = transaction.objectStore(ithStoreName);
+        const getRequest = objectStore.getAll();
+
+        getRequest.onsuccess = (event) => {
+          const data = getRequest.result;
+          const lastData = data[data.length - 1];
+          observer.next(lastData);
+          observer.complete();
+        };
+
+        getRequest.onerror = (event) => {
+          observer.error('Errore nel recupero dei dati');
+        };
+      };
+    });
+
+  }
+
   resetDatabase(): Observable<void> {
     return this.clearDatabase();
   }
