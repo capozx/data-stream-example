@@ -1,6 +1,18 @@
-<div *ngFor="let dataFromGenerator of updatedDataFromGenerators; index as i">
-  <span style="margin-right: 40px">Data Generator {{ i }}:</span>
-  <span>{{ dataFromGenerator }}</span>
+<div *ngIf="!showingGraph">
+
+  <div *ngFor="let dataFromGenerator of updatedDataFromGenerators; index as i">
+    <span style="margin-right: 40px">Data Generator {{ i }}:</span>
+    <span>{{ dataFromGenerator }}</span>
+  </div>
+
 </div>
+
+
+<div *ngIf="showingGraph">
+  <app-graph></app-graph>
+</div>
+
+<button (click)="showingGraph = !showingGraph">Toggle grafico</button>
+
 
 <router-outlet></router-outlet>

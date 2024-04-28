@@ -12,6 +12,7 @@ import {interval} from "rxjs";
 export class AppComponent implements OnInit, OnDestroy {
   title = 'data-stream-example';
 
+  showingGraph: boolean = false;
   readonly howManyGenerators: number = 7;
   readonly samplingInterval: number = 500;
   subscriptions: Subscription[] = [];
