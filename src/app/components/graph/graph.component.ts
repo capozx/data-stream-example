@@ -51,10 +51,29 @@ export class GraphComponent implements OnInit, OnChanges {
 
   updateGraphData(labels: string[], data: string[]): void {
     const maxLabelValue: number = parseInt(labels[labels.length - 1]);
-    this.chart.data.labels = labels;
-    this.chart.data.datasets[0].data = data;
-    this.chart.options.scales.x.max = Math.floor(maxLabelValue * (1 + this.xBuffer));
-    this.chart.update();
+    
+    if (this.chart) {
+
+      if (this.chart.data) {
+        this.chart.data.labels = labels;
+
+        if (this.chart.data.datasets && this.chart.data.datasets[0]) {
+          this.chart.data.datasets[0].data = data;
+        } else {
+          console.warn("unable to update graph data: chart dataset is not ready");
+        }
+
+        
+      } else {
+        console.warn("unable to update graph data: chart data is not ready");
+      }
+
+      this.chart.options.scales.x.max = Math.floor(maxLabelValue * (1 + this.xBuffer));
+      this.chart.update();
+    } else {
+      console.warn("unable to update graph data: chart is not ready");
+    }
+    
   }
 
 }
