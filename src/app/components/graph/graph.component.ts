@@ -12,6 +12,9 @@ export class GraphComponent implements OnInit, OnChanges {
   @Input()
   data: any[] = [];
 
+  // xBuffer for X axis, allowed values [0, +Inf)
+  xBuffer: number = 0.1;
+
   ngOnInit(): void {
     this.chart = new Chart("chart-element", {
       type: 'line',
@@ -26,6 +29,14 @@ export class GraphComponent implements OnInit, OnChanges {
           borderColor: 'rgb(75, 192, 192)',
           tension: 0.1
         }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'linear',
+            min: 0
+          }
+        }
       }
     });
 
@@ -39,8 +50,10 @@ export class GraphComponent implements OnInit, OnChanges {
   }
 
   updateGraphData(labels: string[], data: string[]): void {
+    const maxLabelValue: number = parseInt(labels[labels.length - 1]);
     this.chart.data.labels = labels;
     this.chart.data.datasets[0].data = data;
+    this.chart.options.scales.x.max = Math.floor(maxLabelValue * (1 + this.xBuffer));
     this.chart.update();
   }
 
