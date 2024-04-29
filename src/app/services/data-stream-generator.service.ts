@@ -6,7 +6,8 @@ import {interval, map, Observable} from "rxjs";
 })
 export class DataStreamGeneratorService {
 
-  private readonly generatorMaxValue: number = 100;
+  private generatorCurrentValue: number = 1000;
+  private readonly maxPercentageVariation: number = 0.025;
   private readonly dataGeneratorInterval: number = 100;
   private dataGenerators$: Observable<number>[] = [];
 
@@ -19,7 +20,11 @@ export class DataStreamGeneratorService {
       newDataGenerators$.push(
         interval(this.dataGeneratorInterval)
           .pipe(
-            map(() => Math.random() * this.generatorMaxValue)
+            map(() => {
+              this.generatorCurrentValue = this.generatorCurrentValue + 
+                (this.generatorCurrentValue * this.maxPercentageVariation * this.generateSign());
+              return this.generatorCurrentValue;
+            })
           )
       );
     }
@@ -27,6 +32,10 @@ export class DataStreamGeneratorService {
     this.dataGenerators$ = newDataGenerators$;
 
     return this.dataGenerators$;
+  }
+
+  private generateSign(): number {
+    return (Math.random() >= 0.5) ? 1 : -1;
   }
 
 
