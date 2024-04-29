@@ -9,7 +9,7 @@
 
 
 <div *ngIf="showingGraph">
-  <app-graph></app-graph>
+  <app-graph [data]="dataForGraph"></app-graph>
 </div>
 
 <button (click)="showingGraph = !showingGraph">Toggle grafico</button>

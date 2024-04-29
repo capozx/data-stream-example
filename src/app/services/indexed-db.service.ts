@@ -126,6 +126,33 @@ export class IndexedDbService {
 
   }
 
+  getAllData(objectStoreIndex: number): Observable<any[]> {
+    return new Observable<any[]>(observer => {
+      const request = indexedDB.open(this.dbName);
+      
+      request.onsuccess = (event: any) => {
+        const ithStoreName = this.baseStoreName + objectStoreIndex;
+        const db = event.target.result;
+        const transaction = db.transaction([ithStoreName], 'readonly');
+        const objectStore = transaction.objectStore(ithStoreName);
+        const getAllRequest = objectStore.getAll();
+
+        getAllRequest.onsuccess = () => {
+          observer.next(getAllRequest.result);
+          observer.complete();
+        };
+
+        getAllRequest.onerror = (error: any) => {
+          observer.error('Error fetching data from IndexedDB: ' + error.target.error.message);
+        };
+      };
+
+      request.onerror = (error: any) => {
+        observer.error('Error opening IndexedDB: ' + error.target.error.message);
+      };
+    });
+  }
+
   resetDatabase(): Observable<void> {
     return this.clearDatabase();
   }

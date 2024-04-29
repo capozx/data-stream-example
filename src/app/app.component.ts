@@ -14,11 +14,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   showingGraph: boolean = false;
   readonly howManyGenerators: number = 7;
+  readonly renderedGeneratorIndex: number = 0;
   readonly samplingInterval: number = 500;
   subscriptions: Subscription[] = [];
   dataGenerators$: Observable<number>[] = [];
   updatedDataFromGenerators: number[] = [];
   readonly samplingClock$: Observable<number> = interval(this.samplingInterval);
+  dataForGraph: any[] = [];
 
   constructor(
     private dataStreamGenerator: DataStreamGeneratorService,
@@ -47,13 +49,29 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
         this.samplingClock$.subscribe(() => {
-           this.indexedDbService.getLastDataFromStore(index).subscribe((upToDatedata) => {
-             this.updatedDataFromGenerators[index] = upToDatedata;
-           });
+
+           if (!this.showingGraph) {
+
+            this.indexedDbService.getLastDataFromStore(index).subscribe((upToDatedata) => {
+              this.updatedDataFromGenerators[index] = upToDatedata;
+            });
+
+           } 
+           
         })
 
       );
-    })
+    });
+
+    this.subscriptions.push(
+      this.samplingClock$.subscribe(() => {
+        if (this.showingGraph) {
+          this.indexedDbService.getAllData(this.renderedGeneratorIndex).subscribe((data) => {
+            this.dataForGraph = data;
+          })
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
