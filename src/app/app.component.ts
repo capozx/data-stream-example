@@ -32,36 +32,46 @@ export class AppComponent implements OnInit, OnDestroy {
       this.updatedDataFromGenerators.push(0);
     }
 
-    this.indexedDbService.resetDatabase();
     this.indexedDbService.setHowManyStores(this.howManyGenerators);
 
-    this.dataGenerators$ = this.dataStreamGenerator.buildDataGenerators(this.howManyGenerators);
+    this.indexedDbService.resetDatabase().subscribe({
+      next: () => {
+        console.log("indexedDb successfully reset");
 
-    this.dataGenerators$.forEach((dataGenerator: Observable<number>, index: number) => {
-      this.subscriptions.push(
+        this.dataGenerators$ = this.dataStreamGenerator.buildDataGenerators(this.howManyGenerators);
 
-        dataGenerator.subscribe((data: number) => {
-          // console.debug("data from generator", index, data);
-          this.indexedDbService.saveData(index, data).subscribe({
-            error: (e) => console.error("unable to store data", e)
-          });
-        }),
+        this.dataGenerators$.forEach((dataGenerator: Observable<number>, index: number) => {
+          this.subscriptions.push(
+
+            dataGenerator.subscribe((data: number) => {
+              // console.debug("data from generator", index, data);
+              this.indexedDbService.saveData(index, data).subscribe({
+                error: (e) => console.error("unable to store data", e)
+              });
+            }),
 
 
-        this.samplingClock$.subscribe(() => {
+            this.samplingClock$.subscribe(() => {
 
-           if (!this.showingGraph) {
+              if (!this.showingGraph) {
 
-            this.indexedDbService.getLastDataFromStore(index).subscribe((upToDatedata) => {
-              this.updatedDataFromGenerators[index] = upToDatedata;
-            });
+                this.indexedDbService.getLastDataFromStore(index).subscribe((upToDatedata) => {
+                  this.updatedDataFromGenerators[index] = upToDatedata;
+                });
 
-           } 
-           
-        })
+              } 
+              
+            })
 
-      );
+          );
+        });
+      },
+      error: (e) => {
+        console.error("unable to reset indexedDb", e);
+      }
     });
+    
+    
 
     this.subscriptions.push(
       this.samplingClock$.subscribe(() => {
